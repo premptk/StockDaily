@@ -1,5 +1,6 @@
 import axios from "axios";
 import mongoose from "mongoose";
+import logger from '../api/logger';
 import {
   Bitcoin,
   Ethereum,
@@ -9,11 +10,11 @@ import {
 } from "../../Model/stock";
 
 const COINS = [
-  { name: 'bitcoin', model: Bitcoin },
-  { name: 'tether', model: Tether },
-  { name: 'ethereum', model: Ethereum },
-  { name: 'binancecoin', model: BinanceCoin },
-  { name: 'solana', model: Solana },
+  { name: "bitcoin", model: Bitcoin },
+  { name: "tether", model: Tether },
+  { name: "ethereum", model: Ethereum },
+  { name: "binancecoin", model: BinanceCoin },
+  { name: "solana", model: Solana },
 ];
 
 // Function to update each stock data
@@ -34,7 +35,7 @@ const updateStockData = async () => {
       });
 
       await stockData.save();
-      console.log(`Data saved for ${coin.name}`);
+      logger.info(`Data saved for ${coin.name}`);
     });
 
     await Promise.all(updatePromises);
@@ -44,9 +45,20 @@ const updateStockData = async () => {
       message: "Data updated successfully",
     };
   } catch (error) {
-    console.error("Error updating data:", error);
+    logger.error("Error updating data:", error);
     return { success: false, message: `Error updating data: ${error.message}` };
   }
+};
+
+const startInterval = () => {
+  setInterval(async () => {
+    const updateResult = await updateStockData();
+    if (updateResult.success) {
+        logger.info(`updated all stocks data at ${new Date().toISOString()}`);
+      } else {
+        logger.info('Issue while updating stocks');
+      }
+  }, 2000);
 };
 
 export default async function handler(req, res) {
@@ -63,19 +75,12 @@ export default async function handler(req, res) {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log("Database connected!");
+    logger.info("Database connected!");
 
-    const updateResult = await updateStockData();
-
-    if (updateResult.success) {
-      res.status(200).json({ message: updateResult.message });
-    } else {
-      res.status(500).json({ message: updateResult.message });
-    }
+    startInterval();
+    res.status(200).json({message: 'Database connected and started interval for updating stocks'});
   } catch (error) {
-    console.error("Error fetching data:", error);
+    logger.error("Error connecting to database or fetching data: ", error);
     res.status(500).json({ message: "Error fetching data" });
-  } finally {
-    await mongoose.connection.close();
   }
 }

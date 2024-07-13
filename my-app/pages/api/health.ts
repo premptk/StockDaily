@@ -9,8 +9,6 @@ export default function handler(
   res: NextApiResponse<ResponseData>
 ) {
   if (req.method === 'GET') {
-    res.status(200).json({ message: 'Hello from Next.js!' });
-  } else {
-    res.status(405).json({ message: 'Method Not Allowed' });
-  }
+    res.status(200).json({ message: 'App is healthy' });
+  } 
 }
