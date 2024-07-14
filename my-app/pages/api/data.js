@@ -1,5 +1,4 @@
 import axios from "axios";
-import mongoose from "mongoose";
 import logger from '../api/logger';
 import {
   Bitcoin,
@@ -7,7 +6,8 @@ import {
   Tether,
   BinanceCoin,
   Solana,
-} from "../../Model/stock";
+} from "../../Model/schema";
+import connectDB from "../database/connectDb";
 
 const COINS = [
   { name: "bitcoin", model: Bitcoin },
@@ -63,20 +63,7 @@ const startInterval = () => {
 
 export default async function handler(req, res) {
   try {
-    const DATABASE_URL = "mongodb://localhost:27017/DailyStocks";
-
-    if (!DATABASE_URL) {
-      throw new Error(
-        "Please define the DATABASE_URL environment variable inside .env.local"
-      );
-    }
-
-    await mongoose.connect(DATABASE_URL, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    logger.info("Database connected!");
-
+    connectDB();
     startInterval();
     res.status(200).json({message: 'Database connected and started interval for updating stocks'});
   } catch (error) {
