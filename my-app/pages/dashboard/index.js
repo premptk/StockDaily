@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Modal from "../../components/Modal";
 
 const Dashboard = () => {
   const [stocksData, setStocksData] = useState([]);
   const [selectedModel, setSelectedModel] = useState("Bitcoin");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchInitialRecords = async () => {
     try {
@@ -56,14 +58,14 @@ const Dashboard = () => {
   
     return () => clearInterval(interval); 
   }, [selectedModel]);
-  
 
-  const handleModelChange = (event) => {
-    setSelectedModel(event.target.value);
+  const handleModelChange = (model) => {
+    setSelectedModel(model);
+    setIsModalOpen(false);
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-24">
+    <main className="flex min-h-screen flex-col items-center p-12">
       <h1 className="text-3xl font-bold mb-4">Cryptocurrency Stock Data</h1>
       <div className="w-full max-w-4xl">
         <div className="flex justify-between mb-4 items-center">
@@ -77,17 +79,12 @@ const Dashboard = () => {
               <span className="ml-2">{stocksData[0]?.symbol || ""}</span>
             </div>
           </div>
-          <select
-            className="p-2 border border-gray-300 rounded"
-            onChange={handleModelChange}
-            value={selectedModel}
+          <button
+            className="p-2 border border-gray-300 rounded text-white"
+            onClick={() => setIsModalOpen(true)}
           >
-            <option value="Bitcoin">Bitcoin</option>
-            <option value="Ethereum">Ethereum</option>
-            <option value="Tether">Tether</option>
-            <option value="BinanceCoin">Binance Coin</option>
-            <option value="Solana">Solana</option>
-          </select>
+            Change Cypto 
+          </button>
         </div>
         <table className="table-auto w-full border-collapse border border-gray-300">
           <thead>
@@ -110,10 +107,7 @@ const Dashboard = () => {
               ))
             ) : (
               <tr>
-                <td
-                  colSpan="3"
-                  className="border border-gray-300 p-2 text-center"
-                >
+                <td colSpan="3" className="border border-gray-300 p-2 text-center">
                   No data available
                 </td>
               </tr>
@@ -121,6 +115,41 @@ const Dashboard = () => {
           </tbody>
         </table>
       </div>
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <h2 className="text-xl font-bold mb-4">Select Cryptocurrency</h2>
+        <div className="flex flex-col space-y-2">
+          <button
+            className="p-2 border border-gray-300 rounded text-black"
+            onClick={() => handleModelChange("Bitcoin")}
+          >
+            Bitcoin
+          </button>
+          <button
+            className="p-2 border border-gray-300 rounded text-black"
+            onClick={() => handleModelChange("Ethereum")}
+          >
+            Ethereum
+          </button>
+          <button
+            className="p-2 border border-gray-300 rounded text-black"
+            onClick={() => handleModelChange("Tether")}
+          >
+            Tether
+          </button>
+          <button
+            className="p-2 border border-gray-300 rounded text-black"
+            onClick={() => handleModelChange("BinanceCoin")}
+          >
+            Binance Coin
+          </button>
+          <button
+            className="p-2 border border-gray-300 rounded text-black"
+            onClick={() => handleModelChange("Solana")}
+          >
+            Solana
+          </button>
+        </div>
+      </Modal>
     </main>
   );
 };
@@ -137,6 +166,5 @@ export async function getServerSideProps() {
     },
   };
 }
-
 
 export default Dashboard;
