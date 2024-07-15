@@ -1,5 +1,5 @@
 import axios from "axios";
-import logger from '../api/logger';
+import logger from './logger';
 import {
   Bitcoin,
   Ethereum,
@@ -8,8 +8,14 @@ import {
   Solana,
 } from "../../Model/schema";
 import connectDB from "../database/connectDb";
+import { Request, Response } from "express";
 
-const COINS = [
+interface Coin {
+  name: string;
+  model: any;
+}
+
+const COINS: Coin[] = [
   { name: "bitcoin", model: Bitcoin },
   { name: "tether", model: Tether },
   { name: "ethereum", model: Ethereum },
@@ -18,7 +24,7 @@ const COINS = [
 ];
 
 // Function to update each stock data
-const updateStockData = async () => {
+const updateStockData = async (): Promise<{ success: boolean, message: string }> => {
   try {
     const updatePromises = COINS.map(async (coin) => {
       const api = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${coin.name}&x_cg_demo_api_key=CG-SPx7QiFVpbpMxYY8NyUeQT39`;
@@ -44,28 +50,28 @@ const updateStockData = async () => {
       success: true,
       message: "Data updated successfully",
     };
-  } catch (error) {
+  } catch (error: any) {
     logger.error("Error updating data:", error);
     return { success: false, message: `Error updating data: ${error.message}` };
   }
 };
 
-const startInterval = () => {
+const startInterval = (): void => {
   setInterval(async () => {
     const updateResult = await updateStockData();
     if (updateResult.success) {
-        logger.info(`updated all stocks data at ${new Date().toISOString()}`);
-      } else {
-        logger.info('Issue while updating stocks');
-      }
+      logger.info(`Updated all stocks data at ${new Date().toISOString()}`);
+    } else {
+      logger.info('Issue while updating stocks');
+    }
   }, 2000);
 };
 
-export default async function handler(req, res) {
+export default async function handler(req: Request, res: Response): Promise<void> {
   try {
-    connectDB();
+    await connectDB();
     startInterval();
-    res.status(200).json({message: 'Database connected and started interval for updating stocks'});
+    res.status(200).json({ message: 'Database connected and started interval for updating stocks' });
   } catch (error) {
     logger.error("Error connecting to database or fetching data: ", error);
     res.status(500).json({ message: "Error fetching data" });

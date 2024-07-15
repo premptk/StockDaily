@@ -1,10 +1,11 @@
-import winston from "winston";
+import winston, { format, Logger } from "winston";
 
-const logger = winston.createLogger({
+const logger: Logger = winston.createLogger({
   level: "info",
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.printf(({ timestamp, level, message }) => {
+  format: format.combine(
+    format.timestamp(),
+    format.printf((info) => {
+      const { timestamp, level, message } = info;
       return `${timestamp} [${level}]: ${message}`;
     })
   ),
