@@ -9,6 +9,7 @@ import {
 } from "../../Model/schema";
 import connectDB from "../database/connectDb";
 import { Request, Response } from "express";
+require("dotenv").config();
 
 interface Coin {
   name: string;
@@ -27,7 +28,7 @@ const COINS: Coin[] = [
 const updateStockData = async (): Promise<{ success: boolean, message: string }> => {
   try {
     const updatePromises = COINS.map(async (coin) => {
-      const api = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${coin.name}&x_cg_demo_api_key=CG-SPx7QiFVpbpMxYY8NyUeQT39`;
+      const api = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${coin.name}&x_cg_demo_api_key=${process.env.API_KEY}`;
       const response = await axios.get(api);
       const data = response.data[0];
 

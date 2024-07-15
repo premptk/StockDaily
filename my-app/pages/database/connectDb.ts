@@ -1,6 +1,7 @@
 import mongoose, { ConnectOptions } from "mongoose";
+require("dotenv").config();
 
-const DATABASE_URL = "mongodb://localhost:27017/DailyStocks";
+const DATABASE_URL = process.env.MONGODB_URI;
 
 if (!DATABASE_URL) {
   throw new Error("Please define the DATABASE_URL environment variable inside .env.local");
@@ -8,7 +9,7 @@ if (!DATABASE_URL) {
 
 async function connectDB(): Promise<void> {
   try {
-    await mongoose.connect(DATABASE_URL, {
+    await mongoose.connect(DATABASE_URL!, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     } as ConnectOptions);
